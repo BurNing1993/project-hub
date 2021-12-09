@@ -78,9 +78,9 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (file) {
-      importProject(file)
+      importProject(file).then(()=>setFile(null))
     }
-  }, [file])
+  }, [file, importProject])
 
   const onUpdateProjectStatus = async (project: IProject) => {
     await updateProjectStatus(

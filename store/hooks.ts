@@ -25,40 +25,39 @@ export function useProjectList() {
         setProjectList([project, ...projectList])
         return id
     }
-    const getProjectList = useCallback(async () => {
+    const getProjectList = useCallback(async (status: ProjectStatus) => {
         try {
             setLoading(true)
             const list = await selectProjectList(status)
-            console.log(list, status);
             setProjectList(list)
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false)
         }
-    }, [status])
+    }, [])
 
     const updateProjectStatus = async (id: number, newStatus: ProjectStatus) => {
         const index = projectList.findIndex(item => item.id === id)
         if (index !== -1) {
             await updateDbProject(id, { status: newStatus })
-            await getProjectList()
+            await getProjectList(status)
         }
     }
     const updateProject = async (project: IProject) => {
         const index = projectList.findIndex(item => item.id === project.id!)
         if (index !== -1) {
             await updateDbProject(project.id!, { ...project })
-            await getProjectList()
+            await getProjectList(status)
         }
     }
 
     const deleteProject = async (id: number) => {
         await deleteProjectById(id)
-        await getProjectList()
+        await getProjectList(status)
     }
 
-    const importProject = async (file: RcFile) => {
+    const importProject = useCallback(async (file: RcFile) => {
         try {
             const text = await file.text()
             const data = JSON.parse(text)
@@ -72,16 +71,16 @@ export function useProjectList() {
                 return newId
             })
             await Promise.all(result)
-            await getProjectList()
+            await getProjectList(status)
             message.success('Import success!')
         } catch (error) {
             console.error(error);
             message.error('Import project error!')
         }
-    }
+    }, [getProjectList])
 
     useEffect(() => {
-        getProjectList()
+        getProjectList(status)
     }, [status, getProjectList])
 
 
