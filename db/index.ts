@@ -21,6 +21,10 @@ export function insertProject(project: IProject) {
     return db.projects.add(project)
 }
 
+export function selectAllProjectList() {
+    return db.projects.reverse().sortBy('updateAt')
+}
+
 export function selectProjectList(status: ProjectStatus = 'open') {
     // .orderBy('updateAt').reverse()
     return db.projects.where('status').equals(status).reverse().sortBy('updateAt')
@@ -57,7 +61,7 @@ export async function insertProjectContent(projectContent: ProjectContent) {
 
 export function selectProjectContentList(pid: number) {
     return db.transaction('rw', db.projects, db.projectContents, async () => {
-        const project =await db.projects.get(pid)
+        const project = await db.projects.get(pid)
         if (project) {
             const list = await db.projectContents.where('pid').equals(pid).reverse().sortBy('index')
             return {
@@ -68,6 +72,10 @@ export function selectProjectContentList(pid: number) {
             throw 'No Such Project!'
         }
     })
+}
+
+export function selectProjectContentListByIds(projectIds: number[]) {
+    return db.projectContents.where('pid').anyOf(projectIds).toArray()
 }
 
 export async function bulkUpdateProjectContent(list: ProjectContent[]) {

@@ -7,7 +7,7 @@ import { Props } from '../../hooks/useModalProps'
 
 const Header: React.FC<Props<IProject>> = ({
   visible,
-  onCancel,
+  close,
   action,
   content,
 }) => {
@@ -27,11 +27,11 @@ const Header: React.FC<Props<IProject>> = ({
     if (action === 'add') {
       projectData.status = 'open'
       const id = await addProject(projectData)
-      onCancel()
+      close()
       router.push(`/project/${id}`)
     } else {
       updateProject(projectData)
-      onCancel()
+      close()
     }
   }
 
@@ -48,7 +48,7 @@ const Header: React.FC<Props<IProject>> = ({
       title={`${action === 'add' ? 'New' : 'Edit'} Project`}
       visible={visible}
       onOk={handleOk}
-      onCancel={onCancel}
+      onCancel={close}
     >
       <Form
         form={form}

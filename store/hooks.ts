@@ -11,6 +11,8 @@ import {
     deleteProjectContent as deleteDbProjectContent, deleteProjectById
 } from '../db'
 import { IProject, ProjectContentStatus, ProjectContent, ProjectStatus, Action } from './types'
+import { RcFile } from 'antd/lib/upload'
+import { message } from 'antd'
 
 
 export function useProjectList() {
@@ -23,7 +25,7 @@ export function useProjectList() {
         setProjectList([project, ...projectList])
         return id
     }
-    const getProjectList = useCallback(async (status: ProjectStatus = 'open') => {
+    const getProjectList = useCallback(async () => {
         try {
             setLoading(true)
             const list = await selectProjectList(status)
@@ -39,24 +41,46 @@ export function useProjectList() {
         const index = projectList.findIndex(item => item.id === id)
         if (index !== -1) {
             await updateDbProject(id, { status: newStatus })
-            await getProjectList(status)
+            await getProjectList()
         }
     }
     const updateProject = async (project: IProject) => {
         const index = projectList.findIndex(item => item.id === project.id!)
         if (index !== -1) {
             await updateDbProject(project.id!, { ...project })
-            await getProjectList(status)
+            await getProjectList()
         }
     }
 
     const deleteProject = async (id: number) => {
         await deleteProjectById(id)
-        await getProjectList(status)
+        await getProjectList()
+    }
+
+    const importProject = async (file: RcFile) => {
+        try {
+            const text = await file.text()
+            const data = JSON.parse(text)
+            const projectList = data.projectList as IProject[]
+            const projectContentList = data.projectContentList as ProjectContent[]
+            const result = projectList.map(async project => {
+                const oldId = project.id
+                const newId = await insertProject({ ...project, id: undefined })
+                const projectContents = projectContentList.filter(p => p.pid === oldId).map(p => ({ ...p, pid: newId as number }))
+                await bulkUpdateProjectContent(projectContents)
+                return newId
+            })
+            await Promise.all(result)
+            await getProjectList()
+            message.success('Import success!')
+        } catch (error) {
+            console.error(error);
+            message.error('Import project error!')
+        }
     }
 
     useEffect(() => {
-        getProjectList(status)
+        getProjectList()
     }, [status, getProjectList])
 
 
@@ -69,7 +93,8 @@ export function useProjectList() {
         getProjectList,
         updateProjectStatus,
         updateProject,
-        deleteProject
+        deleteProject,
+        importProject,
     }
 }
 
@@ -203,6 +228,7 @@ export function useProjectContent() {
     }, [projectContentMap, pid])
 
 
+
     useEffect(() => {
         if (projectId) {
             getProjectContent(projectId).catch(err => {
@@ -210,7 +236,7 @@ export function useProjectContent() {
             })
         }
     }, [projectId, getProjectContent])
-    
+
     useEffect(() => {
         if (pid) {
             let projectId = Number(pid)

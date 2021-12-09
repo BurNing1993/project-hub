@@ -46,7 +46,7 @@ const projectContentStatusList: {
 
 const AddProjectContentModal: React.FC<Props<ProjectContent>> = ({
   visible,
-  onCancel,
+  close,
   content,
   action,
 }) => {
@@ -73,14 +73,14 @@ const AddProjectContentModal: React.FC<Props<ProjectContent>> = ({
   const onFinish = async (values: ProjectContent) => {
     const data = { ...content, ...values, content: (values.content as any).toHTML() }
     await confirmSaveProjectContent(data, action)
-    onCancel()
+    close()
   }
   return (
     <Modal
       title={`${action === 'add' ? 'Add' : 'Edit'} ProjectContent`}
       visible={visible}
       onOk={handleOk}
-      onCancel={onCancel}
+      onCancel={close}
       width="1000px"
     >
       <Form

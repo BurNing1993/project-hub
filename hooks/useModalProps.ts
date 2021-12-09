@@ -6,7 +6,7 @@ export interface Props<T> {
     visible: boolean
     action: Action
     content?: Partial<T>
-    onCancel: () => void
+    close: () => void
 }
 
 export default function useModalProps<T>() {
@@ -25,7 +25,7 @@ export default function useModalProps<T>() {
             visible,
             action,
             content,
-            onCancel: () => setVisible(false)
+            close: () => setVisible(false)
         },
         onAdd: onSave('add'),
         onEdit: onSave('update'),

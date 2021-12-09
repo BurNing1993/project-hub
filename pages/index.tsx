@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import Link from 'next/link'
 import {
@@ -8,6 +8,8 @@ import {
   HistoryOutlined,
   ExclamationCircleOutlined,
   ScheduleOutlined,
+  ExportOutlined,
+  ImportOutlined,
 } from '@ant-design/icons'
 import {
   List,
@@ -24,13 +26,16 @@ import {
   Modal,
   Progress,
   Tooltip,
+  Upload,
 } from 'antd'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { RcFile } from 'antd/lib/upload'
 import useSize from '../hooks/useSize'
 import { useProjectList } from '../store/hooks'
 import { IProject, ProjectStatus } from '../store/types'
 import ProjectModal from '../components/Project/ProjectModal'
+import ExportModal from '../components/Project/ExportModal'
 import useModalProps from '../hooks/useModalProps'
 
 dayjs.extend(relativeTime)
@@ -58,6 +63,8 @@ const projectStatus: { key: ProjectStatus; tab: React.ReactNode }[] = [
 
 const Home: NextPage = () => {
   const size = useSize()
+  const [visible, setVisible] = useState(false)
+  const [file, setFile] = useState<RcFile | null>(null)
   const { modalProps, onAdd, onEdit } = useModalProps<IProject>()
   const {
     status,
@@ -66,7 +73,14 @@ const Home: NextPage = () => {
     loading,
     updateProjectStatus,
     deleteProject,
+    importProject,
   } = useProjectList()
+
+  useEffect(() => {
+    if (file) {
+      importProject(file)
+    }
+  }, [file])
 
   const onUpdateProjectStatus = async (project: IProject) => {
     await updateProjectStatus(
@@ -99,9 +113,35 @@ const Home: NextPage = () => {
             className="project-list"
             size="small"
             tabBarExtraContent={
-              <Button type="primary" onClick={() => onAdd()}>
+              <Dropdown.Button
+                type="primary"
+                onClick={() => onAdd()}
+                overlay={
+                  <Menu>
+                    <Menu.Item
+                      key="export"
+                      icon={<ExportOutlined />}
+                      onClick={() => setVisible(true)}
+                    >
+                      Export
+                    </Menu.Item>
+                    <Upload
+                      beforeUpload={(file) => {
+                        setFile(file)
+                        return false
+                      }}
+                      showUploadList={false}
+                      accept="application/json"
+                    >
+                      <Menu.Item key="import" icon={<ImportOutlined />}>
+                        Import
+                      </Menu.Item>
+                    </Upload>
+                  </Menu>
+                }
+              >
                 New Project
-              </Button>
+              </Dropdown.Button>
             }
             tabList={projectStatus}
             activeTabKey={status}
@@ -132,7 +172,6 @@ const Home: NextPage = () => {
                                 </Tag>
                               )}
                             </Typography.Text>
-
                             <Typography.Text>{item.desc}</Typography.Text>
                           </a>
                         </Link>
@@ -151,16 +190,14 @@ const Home: NextPage = () => {
                               >
                                 {item.status === 'open' ? 'Close' : 'Reopen'}
                               </Menu.Item>
-                              {item.status === 'closed' && (
-                                <Menu.Item
-                                  key="delete"
-                                  onClick={() => onDelete(item)}
-                                >
-                                  <Typography.Text type="danger">
-                                    Delete
-                                  </Typography.Text>
-                                </Menu.Item>
-                              )}
+                              <Menu.Item
+                                key="delete"
+                                onClick={() => onDelete(item)}
+                              >
+                                <Typography.Text type="danger">
+                                  Delete
+                                </Typography.Text>
+                              </Menu.Item>
                             </Menu>
                           }
                         >
@@ -196,6 +233,7 @@ const Home: NextPage = () => {
         </Col>
       </Row>
       <ProjectModal {...modalProps} />
+      <ExportModal visible={visible} close={() => setVisible(false)} />
     </>
   )
 }
