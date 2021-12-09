@@ -29,13 +29,14 @@ export function useProjectList() {
         try {
             setLoading(true)
             const list = await selectProjectList(status)
+            console.log(list, status);
             setProjectList(list)
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [status])
 
     const updateProjectStatus = async (id: number, newStatus: ProjectStatus) => {
         const index = projectList.findIndex(item => item.id === id)
