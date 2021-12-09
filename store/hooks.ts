@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { DraggableLocation } from 'react-beautiful-dnd'
 import { useRouter } from 'next/router'
-import { projectListState, projectContentState } from './atom'
+import { projectListState, projectContentState, projectState } from './atom'
 import { projectContentMapState } from './selectors'
 import {
     insertProject, insertProjectContent,
@@ -38,7 +38,7 @@ export function useProjectList() {
     const updateProjectStatus = async (id: number, newStatus: ProjectStatus) => {
         const index = projectList.findIndex(item => item.id === id)
         if (index !== -1) {
-            await updateDbProject(id, { status: newStatus})
+            await updateDbProject(id, { status: newStatus })
             await getProjectList(status)
         }
     }
@@ -78,6 +78,7 @@ export function useProjectContent() {
     const { pid } = router.query
     const [projectId, setProjectId] = useState(0)
     const [projectContentList, setProjectContentList] = useRecoilState(projectContentState)
+    const setProject = useSetRecoilState(projectState)
     const projectContentMap = useRecoilValue(projectContentMapState)
 
     const confirmSaveProjectContent = async (projectContent: ProjectContent, action: Action) => {
@@ -105,10 +106,9 @@ export function useProjectContent() {
 
     const getProjectContent = useCallback(async (pid: number) => {
         try {
-            const projectContentList = await selectProjectContentList(pid)
-            if (projectContentList) {
-                setProjectContentList(projectContentList)
-            }
+            const data = await selectProjectContentList(pid)
+            setProject(data.project)
+            setProjectContentList(data.list)
         } catch (error) {
             console.error(error);
         }
@@ -210,6 +210,7 @@ export function useProjectContent() {
             })
         }
     }, [projectId, getProjectContent])
+    
     useEffect(() => {
         if (pid) {
             let projectId = Number(pid)
@@ -217,8 +218,8 @@ export function useProjectContent() {
                 setProjectId(projectId)
             }
         }
-
     }, [pid])
+
     return {
         pid: projectId,
         confirmSaveProjectContent,

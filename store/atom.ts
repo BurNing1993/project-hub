@@ -21,3 +21,9 @@ export const projectContentState = atom<ProjectContent[]>({
     key: 'projectContentState',
     default: []
 })
+
+// current project
+export const projectState = atom<IProject|undefined>({
+    key: 'projectState',
+    default: undefined
+})

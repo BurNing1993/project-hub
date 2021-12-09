@@ -4,6 +4,13 @@
 }
 
 .logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: auto;
+}
+
+.logoImg {
   background: #fff;
   height: 40px;
   width: 40px;
@@ -12,5 +19,4 @@
   align-items: center;
   border-radius: 4px;
   opacity: 0.8;
-  margin-right: auto;
 }

@@ -13,7 +13,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <RecoilRoot>
       <Head>
         <title>ProjectHub</title>
-        <meta name="description" content="PM app" />
+        <meta name="description" content="Simple project management" />
         <link rel="icon" href="/favicon.ico" />
         <link
           rel="stylesheet"

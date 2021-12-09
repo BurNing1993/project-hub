@@ -9,7 +9,7 @@ const { Header } = Layout
 const AppHeader: React.FC = () => {
   return (
     <Header className={styles.header}>
-      <Logo />
+      <Logo /> 
       <ThemeSwitch />
     </Header>
   )

@@ -56,7 +56,18 @@ export async function insertProjectContent(projectContent: ProjectContent) {
 }
 
 export function selectProjectContentList(pid: number) {
-    return db.projectContents.where('pid').equals(pid).reverse().sortBy('index')
+    return db.transaction('rw', db.projects, db.projectContents, async () => {
+        const project =await db.projects.get(pid)
+        if (project) {
+            const list = await db.projectContents.where('pid').equals(pid).reverse().sortBy('index')
+            return {
+                project,
+                list,
+            }
+        } else {
+            throw 'No Such Project!'
+        }
+    })
 }
 
 export async function bulkUpdateProjectContent(list: ProjectContent[]) {
