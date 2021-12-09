@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
   DragDropContext,
   Draggable,
@@ -35,17 +35,19 @@ import { useProjectContent } from '../../store/hooks'
 import { ProjectContent } from '../../store/types'
 import ProjectContentHeader from '../../components/Project/ProjectContentHeader'
 import useModalProps from '../../hooks/useModalProps'
+import Head from 'next/head'
 
-const ProjectContentModal = dynamic(import('../../components/Project/ProjectContentModal'),{ssr:false})
+const ProjectContentModal = dynamic(
+  import('../../components/Project/ProjectContentModal'),
+  { ssr: false }
+)
 const DROP_TYPE = 'drop_type'
 
 const Project: React.FC = () => {
   const size = useSize()
   const { modalProps, onAdd, onEdit } = useModalProps<ProjectContent>()
   const projectContentMap = useRecoilValue(projectContentMapState)
-  const { pid, deleteProjectContent, onDarg } =
-    useProjectContent()
-
+  const { pid, deleteProjectContent, onDarg } = useProjectContent()
 
   const onDragEnd = (result: DropResult, provided: ResponderProvided) => {
     const { source, destination } = result

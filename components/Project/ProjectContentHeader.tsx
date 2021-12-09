@@ -5,6 +5,7 @@ import { Space, Tag, Typography } from 'antd'
 import { projectListState } from '../../store/atom'
 import { IProject } from '../../store/types'
 import { getProject } from '../../db'
+import Head from 'next/head'
 
 const ProjectContentHeader: React.FC = () => {
   const router = useRouter()
@@ -28,12 +29,17 @@ const ProjectContentHeader: React.FC = () => {
   }, [pid, projectList, setProject])
 
   return project ? (
-    <Space>
-      <Typography.Text strong style={{ fontSize: '20px' }}>
-        {project.name}
-      </Typography.Text>
-      {project.status === 'closed' && <Tag color="red">Closed</Tag>}
-    </Space>
+    <>
+      <Head>
+        <title>{project.name} - ProjectHub</title>
+      </Head>
+      <Space>
+        <Typography.Text strong style={{ fontSize: '20px' }}>
+          {project.name}
+        </Typography.Text>
+        {project.status === 'closed' && <Tag color="red">Closed</Tag>}
+      </Space>
+    </>
   ) : (
     <Typography.Text>UNKNOWN</Typography.Text>
   )

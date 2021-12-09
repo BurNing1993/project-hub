@@ -1,7 +1,7 @@
 import type { AppProps } from 'next/app'
 import React from 'react'
 import Head from 'next/head'
-import { version, Row, Col, Layout } from 'antd'
+import { version, Layout } from 'antd'
 import { RecoilRoot } from 'recoil'
 import Header from '../components/Header'
 import '../styles/globals.css'
@@ -12,7 +12,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <RecoilRoot>
       <Head>
-        <title>PM</title>
+        <title>ProjectHub</title>
         <meta name="description" content="PM app" />
         <link rel="icon" href="/favicon.ico" />
         <link
